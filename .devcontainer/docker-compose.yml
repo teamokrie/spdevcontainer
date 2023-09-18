@@ -1,0 +1,40 @@
+version: "3.7"
+
+x-environment: &default-environment
+  MYSQL_ROOT_PASSWORD: oukairui
+  MYSQL_DATABASE: secprint
+services:
+  secprintd:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    environment:
+      <<: *default-environment
+      SECPRINT_LOG_LEVEL: 7
+      SECPRINT_DB_ADDRESS: db
+      SECPRINT_DB_USER: root
+      SECPRINT_LICENSE_PATH: tmp/license
+      SECPRINT_LICENSE_DIR: tmp/licenses
+    hostname: secprintd
+    ports:
+      - 9000:9000
+      - 8000:8000
+    volumes:
+      - ..:/workspace/secprint
+    user: vscode
+    command: sleep infinity
+    networks:
+      - devcontainer
+  db:
+    image: "mysql:8"
+    restart: unless-stopped
+    hostname: devcontainermysql
+    environment: *default-environment
+    ports:
+      - 3306:3306
+    networks:
+      - devcontainer
+networks:
+  devcontainer:
+    driver:
+      bridge
